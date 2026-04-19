@@ -1,0 +1,226 @@
+<!-- File: index.html -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PromptForge — AI Prompt Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Top Bar -->
+  <header class="topbar" role="banner">
+    <div class="topbar-left">
+      <div class="logo">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+          <path d="M11 2L3 6v10l8 4 8-4V6L11 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M11 2v18M3 6l8 4 8-4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        <span>PromptForge</span>
+      </div>
+
+      <!-- Persona switcher -->
+      <nav class="persona-tabs" role="tablist" aria-label="AI Persona">
+        <button class="persona-tab active" role="tab" aria-selected="true" data-persona="developer" aria-controls="chat-output">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Developer
+        </button>
+        <button class="persona-tab" role="tab" aria-selected="false" data-persona="writer" aria-controls="chat-output">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Creative Writer
+        </button>
+        <button class="persona-tab" role="tab" aria-selected="false" data-persona="security" aria-controls="chat-output">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          CyberSec
+        </button>
+      </nav>
+    </div>
+
+    <div class="topbar-right">
+      <button class="icon-btn" id="history-toggle-btn" aria-label="Toggle history" title="Prompt History">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </button>
+      <button class="icon-btn" id="compare-toggle-btn" aria-label="Toggle compare view" title="Compare View">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="18"/><rect x="14" y="3" width="7" height="18"/></svg>
+      </button>
+      <button class="icon-btn" id="sidebar-toggle-btn" aria-label="Toggle settings sidebar" title="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <button class="icon-btn theme-btn" id="theme-toggle" aria-label="Toggle dark/light mode" title="Toggle Theme">
+        <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="app-layout">
+
+    <!-- History Panel (left overlay) -->
+    <aside class="history-panel" id="history-panel" aria-label="Prompt History" hidden>
+      <div class="panel-header">
+        <span>History</span>
+        <button class="icon-btn small" id="history-close-btn" aria-label="Close history">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <ul class="history-list" id="history-list" role="list" aria-label="Saved prompts"></ul>
+      <button class="clear-history-btn" id="clear-history-btn">Clear History</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" role="main">
+
+      <!-- Prompt Input Section -->
+      <section class="input-section" aria-label="Prompt Input">
+        <div class="input-header">
+          <label for="prompt-input" class="input-label">Your Prompt</label>
+          <div class="eval-badges" id="eval-badges" aria-live="polite"></div>
+        </div>
+
+        <div class="textarea-wrapper">
+          <textarea
+            id="prompt-input"
+            placeholder="Enter your prompt… (Enter to generate, Shift+Enter for new line)"
+            rows="4"
+            aria-label="Prompt input"
+            aria-describedby="prompt-hint"
+          ></textarea>
+          <div class="char-count" id="char-count" aria-live="polite">0 chars</div>
+        </div>
+
+        <p id="prompt-hint" class="sr-only">Press Enter to generate response. Shift+Enter inserts a new line.</p>
+
+        <div class="input-actions">
+          <button class="generate-btn" id="generate-btn" aria-label="Generate AI response">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Generate
+          </button>
+          <button class="action-btn variations-btn" id="variations-btn" aria-label="Generate multiple variations">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+            Variations
+          </button>
+          <button class="action-btn clear-btn" id="clear-btn" aria-label="Clear input and chat">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </section>
+
+      <!-- Compare View -->
+      <section class="compare-section hidden" id="compare-section" aria-label="Side-by-side comparison">
+        <div class="compare-header">
+          <span class="compare-title">Side-by-Side Comparison</span>
+          <div class="compare-persona-labels">
+            <span>Developer AI</span>
+            <span>Creative Writer</span>
+          </div>
+        </div>
+        <div class="compare-panels">
+          <div class="compare-panel" id="compare-left" aria-label="Developer AI response"></div>
+          <div class="compare-divider"></div>
+          <div class="compare-panel" id="compare-right" aria-label="Creative Writer response"></div>
+        </div>
+      </section>
+
+      <!-- Variations Tabs -->
+      <div class="variations-bar hidden" id="variations-bar" role="tablist" aria-label="Response variations">
+        <button class="var-tab active" data-var="0" role="tab" aria-selected="true">Variation 1</button>
+        <button class="var-tab" data-var="1" role="tab" aria-selected="false">Variation 2</button>
+        <button class="var-tab" data-var="2" role="tab" aria-selected="false">Variation 3</button>
+      </div>
+
+      <!-- Chat Output -->
+      <section class="chat-section" aria-label="Chat output">
+        <div class="chat-output" id="chat-output" role="log" aria-live="polite" aria-atomic="false" tabindex="0">
+          <div class="welcome-msg">
+            <div class="welcome-icon">
+              <svg width="32" height="32" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                <path d="M11 2L3 6v10l8 4 8-4V6L11 2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+                <path d="M11 2v18M3 6l8 4 8-4" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h2>PromptForge</h2>
+            <p>Select a persona, tweak settings, then write your first prompt.</p>
+            <div class="quick-templates">
+              <button class="quick-tpl" data-template="Explain quantum computing like I'm 5 years old">✦ Explain it simply</button>
+              <button class="quick-tpl" data-template="Write code to reverse a linked list in JavaScript">✦ Generate code</button>
+              <button class="quick-tpl" data-template="Summarize the key ideas behind machine learning">✦ Summarize a topic</button>
+              <button class="quick-tpl" data-template="Generate 10 creative startup ideas for 2025">✦ Brainstorm ideas</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Right Sidebar: Settings + Templates -->
+    <aside class="sidebar" id="sidebar" aria-label="Settings and Templates">
+      <div class="sidebar-inner">
+
+        <!-- Settings -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-heading">Settings</h3>
+
+          <div class="setting-row">
+            <label for="creativity-select">Creativity</label>
+            <select id="creativity-select" aria-label="Creativity level">
+              <option value="low">Low — Focused</option>
+              <option value="med" selected>Medium — Balanced</option>
+              <option value="high">High — Wild</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <label for="length-select">Response Length</label>
+            <select id="length-select" aria-label="Response length">
+              <option value="short">Short</option>
+              <option value="med" selected>Medium</option>
+              <option value="long">Long</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <label for="tone-select">Tone</label>
+            <select id="tone-select" aria-label="Response tone">
+              <option value="formal">Formal</option>
+              <option value="casual" selected>Casual</option>
+              <option value="friendly">Friendly</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Templates -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-heading">Templates</h3>
+          <ul class="template-list" role="list">
+            <li><button class="template-btn" data-template="Summarize this article: [paste text here]">Summarize This</button></li>
+            <li><button class="template-btn" data-template="Explain like I'm 5: [concept]">ELI5 Explain</button></li>
+            <li><button class="template-btn" data-template="Generate 10 creative ideas for [topic]">Generate Ideas</button></li>
+            <li><button class="template-btn" data-template="Write clean, commented JavaScript code for [task]">Write Code</button></li>
+            <li><button class="template-btn" data-template="What are the security risks in [system or code]?">Security Audit</button></li>
+            <li><button class="template-btn" data-template="Write a short story about [character] who discovers [twist]">Short Story</button></li>
+            <li><button class="template-btn" data-template="Compare and contrast [topic A] vs [topic B]">Compare Topics</button></li>
+            <li><button class="template-btn" data-template="Give me a step-by-step tutorial on [skill or tool]">Step-by-Step Guide</button></li>
+          </ul>
+        </div>
+
+        <!-- History in sidebar -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-heading">Recent Prompts</h3>
+          <ul class="sidebar-history" id="sidebar-history" role="list"></ul>
+        </div>
+
+      </div>
+    </aside>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
+  <script defer src="script.js"></script>
+</body>
+</html>
